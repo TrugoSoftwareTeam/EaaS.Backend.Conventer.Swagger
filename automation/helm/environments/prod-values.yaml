@@ -1,0 +1,41 @@
+image:
+  repository: "874460786500.dkr.ecr.eu-west-1.amazonaws.com/eaas-backend-conventer-swagger"
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+config:
+  APP_NAME: "eaas-backend-conventer-swagger"
+  secretsManager: false
+  parameterStore: false
+  parameterDependencies:
+    rds: true
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+serviceAccount:
+  enabled: false
+
+livenessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 3
+  failureThreshold: 3
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 3
+  failureThreshold: 3
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  clusterIssuer: letsencrypt-prod
+  host: eaas-backend-conventer-swagger.pd.trugo.com.tr
+

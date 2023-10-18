@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "eaas-backend-conventer-swagger.fullname" . }}
+  labels:
+    {{- include "eaas-backend-conventer-swagger.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "eaas-backend-conventer-swagger.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "eaas-backend-conventer-swagger.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.serviceAccount.enabled }}
+      serviceAccountName: {{ .Values.serviceAccount.name}}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          envFrom:
+          - secretRef:
+              name: eaas-backend-conventer-swagger
+          {{- if eq .Values.config.secretsManager true }}
+          - secretRef:
+              name: {{ include "external-secrets-name" . }}
+          {{- end }}
+          {{- if eq .Values.config.parameterStore true }}
+          - secretRef:
+              name: {{ include "external-parameters-name" . }}
+          {{- end }}
+          #livenessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: {{ .Values.service.targetPort }}
+          #  initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          #  periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          #  failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          #readinessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: {{ .Values.service.targetPort }}
+          #  initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          #  periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          #  failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
