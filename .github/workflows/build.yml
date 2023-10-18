@@ -56,3 +56,22 @@ jobs:
           --tag ${{ secrets.ECR_REPOSITORY_URL }}:${{ steps.image_tag.outputs.tag }} \
           --no-cache \
           --push .
+  update-image-tag:
+    needs: [build]
+    runs-on: ubuntu-latest
+    environment: prod
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.TOKEN }}
+        
+    - name: Update image tag by branch and sha
+      id: update_tag
+      run: |
+        sed -i 's/\(tag:[[:space:]]\).*/\1\"${{ needs.build.outputs.tag }}\"/' ./automation/helm/environments/${{ needs.get-environment.outputs.environment }}-values.yaml
+     
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      id: push-commit
+      with: 
+        commit_message: Update image tag in ${{ needs.get-environment.outputs.environment }}-values.yaml file
