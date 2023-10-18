@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    cert-manager.io/cluster-issuer: providerservice
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuer}}
   name: {{ include "eaas-backend-conventer-swagger.fullname" . }}
 spec:
   ingressClassName: nginx
