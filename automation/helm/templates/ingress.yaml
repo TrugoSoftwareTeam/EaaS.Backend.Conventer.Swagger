@@ -15,7 +15,7 @@ spec:
             name: {{ include "eaas-backend-conventer-swagger.fullname" . }}
             port:
               number: {{ .Values.service.port }}
-        path: /
+        path: /index.html
         pathType: Prefix
   tls:
   - hosts:
