@@ -39,17 +39,17 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
-          envFrom:
-          - secretRef:
-              name: eaas-backend-conventer-swagger
-          {{- if eq .Values.config.secretsManager true }}
-          - secretRef:
-              name: {{ include "external-secrets-name" . }}
-          {{- end }}
-          {{- if eq .Values.config.parameterStore true }}
-          - secretRef:
-              name: {{ include "external-parameters-name" . }}
-          {{- end }}
+          # envFrom:
+          # - secretRef:
+          #     name: eaas-backend-conventer-swagger
+          # {{- if eq .Values.config.secretsManager true }}
+          # - secretRef:
+          #     name: {{ include "external-secrets-name" . }}
+          # {{- end }}
+          # {{- if eq .Values.config.parameterStore true }}
+          # - secretRef:
+          #     name: {{ include "external-parameters-name" . }}
+          # {{- end }}
           #livenessProbe:
           #  httpGet:
           #    path: /
